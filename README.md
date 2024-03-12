@@ -1,0 +1,2 @@
+# AmazonEventBridgePipesPlayGround
+EventBridgePipes examples
