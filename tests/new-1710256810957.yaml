@@ -1,0 +1,191 @@
+---
+Metadata:
+  TemplateId: "arn:aws:cloudformation:eu-central-1:619831221558:generatedTemplate/7927a721-5d2d-417f-b20b-02ec2489f9d5"
+Parameters:
+  LambdaFunction00helloworld00Y3RycCodeS3KeyOneOfrnHIc:
+    NoEcho: "true"
+    Type: "String"
+    Description: "The Amazon S3 key of the deployment package.\nThis property can\
+      \ be replaced with other exclusive properties"
+  LambdaFunction00helloworld00Y3RycCodeS3BucketOneOfT8EsW:
+    NoEcho: "true"
+    Type: "String"
+    Description: "An Amazon S3 bucket in the same AWS-Region as your function. The\
+      \ bucket can be in a different AWS-account.\nThis property can be replaced with\
+      \ other exclusive properties"
+Resources:
+  LambdaFunction00helloworld00Y3Ryc:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::Lambda::Function"
+    DeletionPolicy: "Retain"
+    Properties:
+      MemorySize: 128
+      Description: ""
+      TracingConfig:
+        Mode: "PassThrough"
+      Timeout: 3
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: "Auto"
+      Handler: "lambda_function.lambda_handler"
+      Code:
+        S3Bucket:
+          Ref: "LambdaFunction00helloworld00Y3RycCodeS3BucketOneOfT8EsW"
+        S3Key:
+          Ref: "LambdaFunction00helloworld00Y3RycCodeS3KeyOneOfrnHIc"
+      Role:
+        Fn::GetAtt:
+        - "IAMRole00helloworldrolecmn3q4vc008WNcG"
+        - "Arn"
+      FileSystemConfigs: []
+      FunctionName: "helloworld"
+      Runtime: "python3.12"
+      PackageType: "Zip"
+      LoggingConfig:
+        LogFormat: "Text"
+        LogGroup: "/aws/lambda/helloworld"
+      EphemeralStorage:
+        Size: 512
+      Architectures:
+      - "x86_64"
+  IAMManagedPolicy00policyserviceroleAWSLambdaBasicExecutionRole68397c9137f047bab5a2535c46b23661003RQU9:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Retain"
+    Properties:
+      ManagedPolicyName: "AWSLambdaBasicExecutionRole-68397c91-37f0-47ba-b5a2-535c46b23661"
+      Path: "/service-role/"
+      Description: ""
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource: "arn:aws:logs:eu-central-1:619831221558:*"
+          Action: "logs:CreateLogGroup"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:logs:eu-central-1:619831221558:log-group:/aws/lambda/helloworld:*"
+          Action:
+          - "logs:CreateLogStream"
+          - "logs:PutLogEvents"
+          Effect: "Allow"
+      Roles:
+      - "helloworld-role-cmn3q4vc"
+      Users: []
+  SQSQueue00testqueue00rMvxl:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::SQS::Queue"
+    DeletionPolicy: "Retain"
+    Properties:
+      SqsManagedSseEnabled: true
+      ReceiveMessageWaitTimeSeconds: 0
+      DelaySeconds: 0
+      MessageRetentionPeriod: 345600
+      MaximumMessageSize: 262144
+      VisibilityTimeout: 30
+      QueueName: "testqueue"
+  IAMManagedPolicy00policyserviceroleLambdaPipeTargetTemplate35ae232d00K2npc:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Retain"
+    Properties:
+      ManagedPolicyName: "LambdaPipeTargetTemplate-35ae232d"
+      Path: "/service-role/"
+      Description: ""
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource:
+          - "arn:aws:lambda:eu-central-1:619831221558:function:helloworld"
+          Action:
+          - "lambda:InvokeFunction"
+          Effect: "Allow"
+      Roles:
+      - "Amazon_EventBridge_Pipe_Execution_40238cd4"
+      Users: []
+  PipesPipe00eventBridgepipe0069JRv:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::Pipes::Pipe"
+    DeletionPolicy: "Retain"
+    Properties:
+      Target:
+        Fn::GetAtt:
+        - "LambdaFunction00helloworld00Y3Ryc"
+        - "Arn"
+      DesiredState: "RUNNING"
+      LogConfiguration:
+        IncludeExecutionData: []
+        CloudwatchLogsLogDestination:
+          LogGroupArn: "arn:aws:logs:eu-central-1:619831221558:log-group:/aws/vendedlogs/pipes/eventBridge-pipe"
+        Level: "ERROR"
+      EnrichmentParameters: {}
+      RoleArn:
+        Fn::GetAtt:
+        - "IAMRole00AmazonEventBridgePipeExecution40238cd400fpYFk"
+        - "Arn"
+      Source:
+        Fn::GetAtt:
+        - "SQSQueue00testqueue00rMvxl"
+        - "Arn"
+      Name: "eventBridge-pipe"
+  IAMManagedPolicy00policyserviceroleSqsPipeSourceTemplate4ae0b53100mKqrk:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Retain"
+    Properties:
+      ManagedPolicyName: "SqsPipeSourceTemplate-4ae0b531"
+      Path: "/service-role/"
+      Description: ""
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource:
+          - "arn:aws:sqs:eu-central-1:619831221558:testqueue"
+          Action:
+          - "sqs:ReceiveMessage"
+          - "sqs:DeleteMessage"
+          - "sqs:GetQueueAttributes"
+          Effect: "Allow"
+      Roles:
+      - "Amazon_EventBridge_Pipe_Execution_40238cd4"
+      Users: []
+  IAMRole00AmazonEventBridgePipeExecution40238cd400fpYFk:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::IAM::Role"
+    DeletionPolicy: "Retain"
+    Properties:
+      Path: "/service-role/"
+      ManagedPolicyArns:
+      - Ref: "IAMManagedPolicy00policyserviceroleLambdaPipeTargetTemplate35ae232d00K2npc"
+      - Ref: "IAMManagedPolicy00policyserviceroleSqsPipeSourceTemplate4ae0b53100mKqrk"
+      MaxSessionDuration: 3600
+      RoleName: "Amazon_EventBridge_Pipe_Execution_40238cd4"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Condition:
+            StringEquals:
+              aws:SourceAccount: "619831221558"
+              aws:SourceArn: "arn:aws:pipes:eu-central-1:619831221558:pipe/eventBridge-pipe"
+          Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "pipes.amazonaws.com"
+  IAMRole00helloworldrolecmn3q4vc008WNcG:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::IAM::Role"
+    DeletionPolicy: "Retain"
+    Properties:
+      Path: "/service-role/"
+      ManagedPolicyArns:
+      - Ref: "IAMManagedPolicy00policyserviceroleAWSLambdaBasicExecutionRole68397c9137f047bab5a2535c46b23661003RQU9"
+      MaxSessionDuration: 3600
+      RoleName: "helloworld-role-cmn3q4vc"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "lambda.amazonaws.com"
